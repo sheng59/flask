@@ -48,7 +48,7 @@ def send_message():
         }
         
         body = {
-            'to': order_data['userId'],
+            #'to': order_data['userId'],
             'messages': [{
                 'type': 'text',
                 'text': formatted_message
@@ -56,7 +56,8 @@ def send_message():
         }
         
         response = requests.post(
-            'https://api.line.me/v2/bot/message/broadcast',
+            #'https://api.line.me/v2/bot/message/push',
+            https://api.line.me/v2/bot/message/broadcast
             headers=headers,
             json=body
         )
