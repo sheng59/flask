@@ -56,7 +56,7 @@ def send_message():
         }
         
         response = requests.post(
-            'https://api.line.me/v2/bot/message/push',
+            'https://api.line.me/v2/bot/message/broadcast',
             headers=headers,
             json=body
         )
