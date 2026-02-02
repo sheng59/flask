@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import requests
 import os
 
@@ -17,10 +17,30 @@ def home():
 
 @app.route("/sendmessage")
 def send_message():
+    order_data = request.json
+    
+    headers = {
+        'Authorization': f'Bearer {CHANNEL_ACCESS_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    
+    body = {
+        'to': order_data.get('userId'),  # 从 POST 数据获取 userId
+        'messages': [{
+            'type': 'text',
+            'text': f"訂單資訊：\n{json.dumps(order_data, ensure_ascii=False, indent=2)}"
+        }]
+    }
+    
+    response = requests.post(
+        'https://api.line.me/v2/bot/message/push',
+        headers=headers,
+        data=json.dumps(body).encode('utf-8')
+    )
+    
     return jsonify({
-        "token_exists": CHANNEL_ACCESS_TOKEN is not None,
-        "token_length": len(CHANNEL_ACCESS_TOKEN) if CHANNEL_ACCESS_TOKEN else 0,
-        "flask_env": os.getenv('FLASK_ENV')
+        "status": "success",
+        "response": response.json()
     })
 
 if __name__ == '__main__':
