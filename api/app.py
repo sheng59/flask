@@ -21,8 +21,24 @@ def send_message():
     try:
         order_data = request.json
         
-        if not order_data:
-            return jsonify({"error": "No data provided"}), 400
+        required_fields = ['userId', 'orderId', 'orderDate', 'paymentMethod', 'amount', 
+                          'recipientName', 'recipientPhone', 'recipientAddress']
+        for field in required_fields:
+            if field not in order_data:
+                return jsonify({
+                    "error": f"Missing required field: {field}",
+                    "message": "Please provide all required order information"
+                }), 400
+                
+        formatted_message = (
+            f"訂單編號: {order_data['orderId']}\n"
+            f"訂單日期: {order_data['orderDate']}\n"
+            f"付款方式: {order_data['paymentMethod']}\n"
+            f"訂單金額: {order_data['amount']}\n"
+            f"收件資料: {order_data['recipientName']}\n"
+            f"          {order_data['recipientPhone']}\n"
+            f"          {order_data['recipientAddress']}"
+        )
         
         headers = {
             'Authorization': f'Bearer {CHANNEL_ACCESS_TOKEN}',
@@ -30,23 +46,23 @@ def send_message():
         }
         
         body = {
-            'to': order_data.get('userId'),  # 从 POST 数据获取 userId
+            'to': order_data['userId'],
             'messages': [{
                 'type': 'text',
-                'text': f"訂單資訊：\n{json.dumps(order_data, ensure_ascii=False, indent=2)}"
+                'text': formatted_message
             }]
         }
         
         response = requests.post(
             'https://api.line.me/v2/bot/message/push',
             headers=headers,
-            data=json.dumps(body).encode('utf-8')
+            json=body
         )
         
         return jsonify({
             "status": "success",
-            "line_response": response.json(),
-            "order_data": order_data
+            "message": "Message sent to LINE",
+            "formatted_message": formatted_message
         }), response.status_code
         
     except Exception as e:
