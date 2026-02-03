@@ -23,8 +23,8 @@ def send_message():
     try:
         order_data = request.json
         
-        required_fields = ['userId', 'orderId', 'orderDate', 'paymentMethod', 'amount', 
-                          'recipientName', 'recipientPhone', 'recipientAddress']
+        required_fields = ['userId', 'message']
+        
         for field in required_fields:
             if field not in order_data:
                 return jsonify({
@@ -32,15 +32,7 @@ def send_message():
                     "message": "Please provide all required order information"
                 }), 400
                 
-        formatted_message = (
-            f"訂單編號: {order_data['orderId']}\n"
-            f"訂單日期: {order_data['orderDate']}\n"
-            f"付款方式: {order_data['paymentMethod']}\n"
-            f"訂單金額: {order_data['amount']}\n"
-            f"收件資料: {order_data['recipientName']}\n"
-            f"          {order_data['recipientPhone']}\n"
-            f"          {order_data['recipientAddress']}"
-        )
+        formatted_message = order_data['message']
         
         headers = {
             'Authorization': f'Bearer {CHANNEL_ACCESS_TOKEN}',
@@ -48,7 +40,7 @@ def send_message():
         }
         
         body = {
-            #'to': order_data['userId'],
+            'to': order_data['userId'],
             'messages': [{
                 'type': 'text',
                 'text': formatted_message
@@ -56,8 +48,8 @@ def send_message():
         }
         
         response = requests.post(
-            #'https://api.line.me/v2/bot/message/push',
-            https://api.line.me/v2/bot/message/broadcast
+            'https://api.line.me/v2/bot/message/push',
+            #'https://api.line.me/v2/bot/message/broadcast',
             headers=headers,
             json=body
         )
